@@ -1,0 +1,3 @@
+/home/alexander/Desktop/OSProj4/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/alexander/Desktop/OSProj4/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/alexander/Desktop/OSProj4/cmake-build-debug/CMakeFiles/OSProj4.dir

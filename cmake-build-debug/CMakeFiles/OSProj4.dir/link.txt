@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/OSProj4.dir/main.cpp.o CMakeFiles/OSProj4.dir/proj4.cpp.o -o OSProj4 
