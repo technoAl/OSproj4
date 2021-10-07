@@ -82,9 +82,6 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/alexander/Desktop/OSProj4/main.cpp">
-			<Option target="OSProj4"/>
-		</Unit>
 		<Unit filename="/home/alexander/Desktop/OSProj4/proj4.cpp">
 			<Option target="OSProj4"/>
 		</Unit>

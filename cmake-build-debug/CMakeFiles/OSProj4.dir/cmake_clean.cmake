@@ -1,5 +1,4 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/OSProj4.dir/main.cpp.o"
   "CMakeFiles/OSProj4.dir/proj4.cpp.o"
   "OSProj4"
   "OSProj4.pdb"

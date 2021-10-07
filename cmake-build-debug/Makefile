@@ -129,30 +129,6 @@ OSProj4/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/OSProj4.dir/build.make CMakeFiles/OSProj4.dir/build
 .PHONY : OSProj4/fast
 
-main.o: main.cpp.o
-.PHONY : main.o
-
-# target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OSProj4.dir/build.make CMakeFiles/OSProj4.dir/main.cpp.o
-.PHONY : main.cpp.o
-
-main.i: main.cpp.i
-.PHONY : main.i
-
-# target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OSProj4.dir/build.make CMakeFiles/OSProj4.dir/main.cpp.i
-.PHONY : main.cpp.i
-
-main.s: main.cpp.s
-.PHONY : main.s
-
-# target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OSProj4.dir/build.make CMakeFiles/OSProj4.dir/main.cpp.s
-.PHONY : main.cpp.s
-
 proj4.o: proj4.cpp.o
 .PHONY : proj4.o
 
@@ -186,9 +162,6 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... OSProj4"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
 	@echo "... proj4.o"
 	@echo "... proj4.i"
 	@echo "... proj4.s"

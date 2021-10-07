@@ -19,12 +19,16 @@ int badFiles = 0;
 int directories = 0;
 int regularFiles = 0;
 int specialFiles = 0;
-int regularFileBytes = 0;
+long regularFileBytes = 0;
 int allText = 0;
-int textFileBytes = 0;
-int fdIn;
+long textFileBytes = 0;
+int currentThreadCount = 0;
+queue<pthread_t> runningProcesses;
+pthread_t* runningProcessesList = (pthread_t*) malloc(sizeof(pthread_t) * 1024);
 
 sem_t mutex;
+sem_t countMutex;
+
 
 bool isTextFile(int size, int fdIn){
     char *pchFile;
@@ -50,29 +54,35 @@ bool isTextFile(int size, int fdIn){
 void* parser(void* arg){ // Adder thread
     char* name = (char*) arg;
 
-    struct stat sb;
+    sem_wait(&countMutex);
+    currentThreadCount++;
+    sem_post(&countMutex);
 
-    if(stat(name, &sb) < 0){ // Bad File
+    struct stat* sb = (struct stat*) malloc(sizeof(struct stat));
+
+    if(stat(name, sb) < 0){ // Bad File
         sem_wait(&mutex);
         badFiles++;
         sem_post(&mutex);
     }
-    if(S_ISDIR(sb.st_mode)){ // Directory
+    if(S_ISDIR(sb -> st_mode)){ // Directory
         sem_wait(&mutex);
         directories++;
         sem_post(&mutex);
-    } else if(S_ISREG(sb.st_mode)){ // Regular
+    } else if(S_ISREG(sb ->st_mode)){ // Regular
         sem_wait(&mutex);
         regularFiles++;
-        regularFileBytes += sb.st_size;
+        regularFileBytes += sb -> st_size;
         sem_post(&mutex);
-
+        int fdIn;
         if ((fdIn = open(name, O_RDONLY)) < 0) {
-            cerr << "file open\n";
+            cerr << "bad file descriptor\n";
         }
-        if(isTextFile(sb.st_size, fdIn)){
+        if(isTextFile(sb -> st_size, fdIn)){
+            //cout << sb -> st_size << "\n";
+
             sem_wait(&mutex);
-            textFileBytes += sb.st_size;
+            textFileBytes += sb -> st_size;
             allText++;
             sem_post(&mutex);
         }
@@ -84,6 +94,10 @@ void* parser(void* arg){ // Adder thread
         specialFiles++;
         sem_post(&mutex);
     }
+
+    sem_wait(&mutex);
+    currentThreadCount--;
+    sem_post(&mutex);
     pthread_exit(0);
 }
 
@@ -97,42 +111,61 @@ int main(int argc, char *argv[]) {
             exit(0);
         }
 
-        if (sem_init(&mutex, 0, 0) < 0) {
+        if (sem_init(&mutex, 0, 1) < 0) {
             perror("sem_init");
             exit(1);
         }
+        if (sem_init(&countMutex, 0, 1) < 0) {
+            perror("sem_init");
+            exit(1);
+        }
+
+        int nextSpace = 0;
+        int currentPointer = 0;
+
         int maxThreads = atoi(&argv[2][0]);
-        int threadCount = 0;
-        queue<pthread_t> runningProcesses;
         while(true){
-            char name[MAX_LENGTH];
+            char* name = (char*)malloc(sizeof(char) * MAX_LENGTH);
             cin.getline(name, MAX_LENGTH);
 
             if(cin.fail()){
+                //cout << "here";
                 break;
             }
 
-            if(threadCount < maxThreads) {
+            sem_wait(&countMutex);
+            int curCount = currentThreadCount;
+            //cout << "thread count " << currentThreadCount << "\n";
+            //cout.flush();
+            sem_post(&countMutex);
+
+            if(curCount < maxThreads) {
                 pthread_t newThread;
                 if (pthread_create(&newThread, NULL, parser, (void *) name) != 0) {
                     perror("pthread_create");
-                    exit(1);
                 }
-                threadCount++;
-                runningProcesses.push(newThread);
+                runningProcessesList[nextSpace] = newThread;
+                nextSpace++;
+                //runningProcesses.push(newThread);
             } else {
                 pthread_join(runningProcesses.front(), NULL);
-                runningProcesses.pop();
-                threadCount--;
+                pthread_t newThread;
+                if (pthread_create(&newThread, NULL, parser, (void *) name) != 0) {
+                    perror("pthread_create");
+                }
+                //runningProcesses.push(newThread);
+                runningProcessesList[nextSpace] = newThread;
+                nextSpace++;
             }
-
 
         }
 
         while(!runningProcesses.empty()){// wait for all threads to finish
-            pthread_join(runningProcesses.front(), NULL);
-            runningProcesses.pop();
+            pthread_join(runningProcessesList[currentPointer], NULL);
+            currentPointer++;
+            //runningProcesses.pop();
         }
+
 
     } else { // Serial Structure
         while(true) {
@@ -140,7 +173,6 @@ int main(int argc, char *argv[]) {
 
             char name[MAX_LENGTH];
             cin.getline(name, MAX_LENGTH);
-
             if(cin.fail()){
                 break;
             }
@@ -153,7 +185,7 @@ int main(int argc, char *argv[]) {
             } else if(S_ISREG(sb.st_mode)){ // Regular
                 regularFiles++;
                 regularFileBytes += sb.st_size;
-
+                int fdIn;
                 if ((fdIn = open(name, O_RDONLY)) < 0) {
                     cerr << "file open\n";
                     continue;
@@ -170,7 +202,7 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-    
+
     cout << "Bad Files: " << badFiles << "\n";
     cout << "Directories: " << directories << "\n";
     cout << "Regular Files: " << regularFiles << "\n";
@@ -179,6 +211,8 @@ int main(int argc, char *argv[]) {
     cout << "Text Files: " << allText << "\n";
     cout << "Bytes Used by Text Files: " << textFileBytes << "\n";
     cout.flush();
+
+    (void) sem_destroy(&mutex);
 
 }
 
