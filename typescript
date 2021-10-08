@@ -1,0 +1,71 @@
+Script started on 2021-10-07 21:04:37-04:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="80" LINES="24"]
+[?2004h]0;alexander@alexander-VirtualBox: ~/Desktop/OSProj4[01;32malexander@alexander-VirtualBox[00m:[01;34m~/Desktop/OSProj4[00m$ exitls -1d /dev/* | ./proj4
+[?2004lfile open
+Bad Files: 0
+Directories: 19
+Regular Files: 1
+Special Files: 186
+Bytes Used by Regular Files: 140737471590400
+Text Files: 0
+Bytes Used by Text Files: 0
+[?2004h]0;alexander@alexander-VirtualBox: ~/Desktop/OSProj4[01;32malexander@alexander-VirtualBox[00m:[01;34m~/Desktop/OSProj4[00m$ ls -1d /dev/* | ./proj4 thread  1
+[?2004lbad file descriptor
+Bad Files: 0
+Directories: 19
+Regular Files: 1
+Special Files: 186
+Bytes Used by Regular Files: 140737471590400
+Text Files: 0
+Bytes Used by Text Files: 0
+[?2004h]0;alexander@alexander-VirtualBox: ~/Desktop/OSProj4[01;32malexander@alexander-VirtualBox[00m:[01;34m~/Desktop/OSProj4[00m$ ls -1d /dev/* | ./proj4 thread 1[K2
+[?2004lbad file descriptor
+Bad Files: 0
+Directories: 19
+Regular Files: 1
+Special Files: 186
+Bytes Used by Regular Files: 140737471590400
+Text Files: 0
+Bytes Used by Text Files: 0
+[?2004h]0;alexander@alexander-VirtualBox: ~/Desktop/OSProj4[01;32malexander@alexander-VirtualBox[00m:[01;34m~/Desktop/OSProj4[00m$ ls -1d /dev/* | ./proj4 thread 2[K15
+[?2004lbad file descriptor
+Bad Files: 0
+Directories: 19
+Regular Files: 1
+Special Files: 186
+Bytes Used by Regular Files: 140737471590400
+Text Files: 0
+Bytes Used by Text Files: 0
+[?2004h]0;alexander@alexander-VirtualBox: ~/Desktop/OSProj4[01;32malexander@alexander-VirtualBox[00m:[01;34m~/Desktop/OSProj4[00m$ ls -1d /dev/* | ./proj4 thread 1516[K[K[K6
+[?2004lInvalid thread count[?2004h]0;alexander@alexander-VirtualBox: ~/Desktop/OSProj4[01;32malexander@alexander-VirtualBox[00m:[01;34m~/Desktop/OSProj4[00m$ ls -1d /dev/* | ./proj4 thread 16[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C
+[C[C[1P6[1P6[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C6 [K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P6
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P6[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K
+[?2004l[0m[01;34m.[0m
+[?2004h]0;alexander@alexander-VirtualBox: ~/Desktop/OSProj4[01;32malexander@alexander-VirtualBox[00m:[01;34m~/Desktop/OSProj4[00m$ ls -1d /dev/* | ./proj4 thread 16[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C* | ./proj4 thread 1[1P6[A]0;alexander@alexander-VirtualBox: ~/Desktop/OSProj4[01;32malexander@alexander-VirtualBox[00m:[01;34m~/Desktop/OSProj4[00m$ [C[C[C[C[C[C[C[C[C[C[C* | ./proj4 thread 16[K[A]0;alexander@alexander-VirtualBox: ~/Desktop/OSProj4[01;32malexander@alexander-VirtualBox[00m:[01;34m~/Desktop/OSProj4[00m$ [C[C[C[C[C[C[C[C[C[C* | ./proj4 thread 16 [K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[1P[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K
+[?2004lBad Files: 0
+Directories: 1
+Regular Files: 7
+Special Files: 0
+Bytes Used by Regular Files: 53062
+Text Files: 4
+Bytes Used by Text Files: 6508
+[?2004h]0;alexander@alexander-VirtualBox: ~/Desktop/OSProj4[01;32malexander@alexander-VirtualBox[00m:[01;34m~/Desktop/OSProj4[00m$ ls -1d * | ./proj4[C[C[C[C[C[C[C[C[C[C[C thread 1
+[?2004lBad Files: 0
+Directories: 1
+Regular Files: 7
+Special Files: 0
+Bytes Used by Regular Files: 53062
+Text Files: 4
+Bytes Used by Text Files: 6508
+[?2004h]0;alexander@alexander-VirtualBox: ~/Desktop/OSProj4[01;32malexander@alexander-VirtualBox[00m:[01;34m~/Desktop/OSProj4[00m$ ls -1d * | ./proj4 thread 1[K7
+[?2004lBad Files: 0
+Directories: 1
+Regular Files: 7
+Special Files: 0
+Bytes Used by Regular Files: 53062
+Text Files: 4
+Bytes Used by Text Files: 6508
+[?2004h]0;alexander@alexander-VirtualBox: ~/Desktop/OSProj4[01;32malexander@alexander-VirtualBox[00m:[01;34m~/Desktop/OSProj4[00m$ exit
+[?2004lexit
+
+Script done on 2021-10-07 21:05:45-04:00 [COMMAND_EXIT_CODE="0"]

@@ -1,0 +1,5 @@
+Script started on 2021-10-07 20:59:35-04:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="80" LINES="24"]
+[?2004h]0;alexander@alexander-VirtualBox: ~/Desktop/OSProj4[01;32malexander@alexander-VirtualBox[00m:[01;34m~/Desktop/OSProj4[00m$ exitls -1d /dev/* | ./proj4exit[K[Kexit
+[?2004lexit
+
+Script done on 2021-10-07 20:59:39-04:00 [COMMAND_EXIT_CODE="0"]

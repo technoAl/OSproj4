@@ -19,22 +19,21 @@ int badFiles = 0;
 int directories = 0;
 int regularFiles = 0;
 int specialFiles = 0;
-long regularFileBytes = 0;
+long long regularFileBytes = 0;
 int allText = 0;
-long textFileBytes = 0;
-int currentThreadCount = 0;
-//queue<pthread_t> runningProcesses; Used to be a queue to store running processes, but filled up & would seg fault
-pthread_t* runningProcessesList = (pthread_t*) malloc(sizeof(pthread_t) * 2048); // List can hold up to 2048 threads, if there are more than 2048 files, then will fail.
+long long textFileBytes = 0;
+//int currentThreadCount = 0;
+queue<pthread_t> runningProcesses;
+//pthread_t* runningProcessesList = (pthread_t*) malloc(sizeof(pthread_t) * 2048); // List can hold up to 2048 threads, if there are more than 2048 files, then will fail.
 
 sem_t mutex; // Mutex between threads
-sem_t countMutex; // Mutex for process count variable, between threads & main thread
 
 bool isTextFile(int size, int fdIn){ // checks if a file is text using MMAP
-    char *pchFile;
+    char *pchFile = (char *) mmap (NULL, size, PROT_READ, MAP_SHARED, fdIn, 0);
     // Map to memory
-    if ((pchFile = (char *) mmap (NULL, size, PROT_READ, MAP_SHARED, fdIn, 0))
-        == (char *) -1)	{
+    if (pchFile == (char *) -1)	{
         perror("Could not mmap file");
+        return false;
     }
 
     for (int i = 0; i < size; i++) { // Loops through each character
@@ -53,11 +52,6 @@ bool isTextFile(int size, int fdIn){ // checks if a file is text using MMAP
 void* parser(void* arg){ // Parser Thread
     char* name = (char*) arg; // File Name passed
 
-    // Ensure Mutex when editing thread count
-    sem_wait(&countMutex);
-    currentThreadCount++;
-    sem_post(&countMutex);
-
     // Stat
     struct stat* sb = (struct stat*) malloc(sizeof(struct stat));
 
@@ -72,6 +66,7 @@ void* parser(void* arg){ // Parser Thread
         directories++;
         sem_post(&mutex);
     } else if(S_ISREG(sb ->st_mode)){ // Regular
+        //cout << sb -> st_size << "\n";
         sem_wait(&mutex);
         regularFiles++;
         regularFileBytes += sb -> st_size;
@@ -81,6 +76,7 @@ void* parser(void* arg){ // Parser Thread
         int fdIn;
         if ((fdIn = open(name, O_RDONLY)) < 0) {
             cerr << "bad file descriptor\n";
+            pthread_exit(0);
         }
         if(isTextFile(sb -> st_size, fdIn)){
             //cout << sb -> st_size << "\n";
@@ -99,10 +95,6 @@ void* parser(void* arg){ // Parser Thread
         sem_post(&mutex);
     }
 
-    sem_wait(&mutex);
-    currentThreadCount--;
-    sem_post(&mutex);
-
     // Exit thread when done
     pthread_exit(0);
 }
@@ -117,10 +109,6 @@ int main(int argc, char *argv[]) {
 
         // Init sems for mutex
         if (sem_init(&mutex, 0, 1) < 0) {
-            perror("sem_init");
-            exit(1);
-        }
-        if (sem_init(&countMutex, 0, 1) < 0) {
             perror("sem_init");
             exit(1);
         }
@@ -140,25 +128,22 @@ int main(int argc, char *argv[]) {
             // Get line
             cin.getline(name, MAX_LENGTH);
 
+//            cout << name << "\n";
+//            cout.flush();
+
             if(cin.fail()){ // EOF
                 break;
             }
 
-            // get value of current thread count
-            sem_wait(&countMutex);
-            int curCount = currentThreadCount;
-            sem_post(&countMutex);
-
-            if(curCount < maxThreads) { // Create a new thread
+            if(runningProcesses.size() < maxThreads) { // Create a new thread
                 pthread_t newThread;
                 if (pthread_create(&newThread, NULL, parser, (void *) name) != 0) {
                     perror("pthread_create");
                 }
-                runningProcessesList[nextSpace] = newThread; // add this thread to the process lists next open space
-                nextSpace++;
+                runningProcesses.push(newThread); // add this thread to the queu
             } else {
-                pthread_join(runningProcessesList[currentPointer], NULL); // Wait for thread to finish
-                currentPointer++; // Once thread finishes update pointer
+                pthread_join(runningProcesses.front(), NULL); // Wait for thread to finish
+                runningProcesses.pop(); // remove process from queue as it's done
 
                 // Then create a new thread for the file
                 pthread_t newThread;
@@ -168,16 +153,15 @@ int main(int argc, char *argv[]) {
                 //runningProcesses.push(newThread);
 
                 // Add this thread to the process lists next open space
-                runningProcessesList[nextSpace] = newThread;
-                nextSpace++;
+                runningProcesses.push(newThread); // add new process to queue
             }
 
         }
 
-        while(currentPointer < nextSpace - 1){// wait for all threads to finish
-            pthread_join(runningProcessesList[currentPointer], NULL);
-            currentPointer++;
-            //runningProcesses.pop();
+        while(!runningProcesses.empty()){// wait for all threads to finish
+            pthread_join(runningProcesses.front(), NULL);
+            //currentPointer++;
+            runningProcesses.pop();
         }
 
 
@@ -228,7 +212,6 @@ int main(int argc, char *argv[]) {
     cout.flush();
 
     (void) sem_destroy(&mutex);
-    (void) sem_destroy(&countMutex);
 
 }
 
