@@ -13,7 +13,7 @@ using namespace std;
 #include <semaphore.h>
 #include <queue>
 
-#define MAX_LENGTH 1024
+#define MAX_LENGTH 1024 // Max File Name Size
 
 int badFiles = 0;
 int directories = 0;
@@ -23,14 +23,13 @@ long regularFileBytes = 0;
 int allText = 0;
 long textFileBytes = 0;
 int currentThreadCount = 0;
-queue<pthread_t> runningProcesses;
-pthread_t* runningProcessesList = (pthread_t*) malloc(sizeof(pthread_t) * 1024);
+//queue<pthread_t> runningProcesses; Used to be a queue to store running processes, but filled up & would seg fault
+pthread_t* runningProcessesList = (pthread_t*) malloc(sizeof(pthread_t) * 2048); // List can hold up to 2048 threads, if there are more than 2048 files, then will fail.
 
-sem_t mutex;
-sem_t countMutex;
+sem_t mutex; // Mutex between threads
+sem_t countMutex; // Mutex for process count variable, between threads & main thread
 
-
-bool isTextFile(int size, int fdIn){
+bool isTextFile(int size, int fdIn){ // checks if a file is text using MMAP
     char *pchFile;
     // Map to memory
     if ((pchFile = (char *) mmap (NULL, size, PROT_READ, MAP_SHARED, fdIn, 0))
@@ -38,9 +37,9 @@ bool isTextFile(int size, int fdIn){
         perror("Could not mmap file");
     }
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) { // Loops through each character
         if(!isprint(pchFile[i]) && !isspace(pchFile[i])){
-            return false;
+            return false; // If any character fails
         }
     }
 
@@ -51,15 +50,18 @@ bool isTextFile(int size, int fdIn){
     return true;
 }
 
-void* parser(void* arg){ // Adder thread
-    char* name = (char*) arg;
+void* parser(void* arg){ // Parser Thread
+    char* name = (char*) arg; // File Name passed
 
+    // Ensure Mutex when editing thread count
     sem_wait(&countMutex);
     currentThreadCount++;
     sem_post(&countMutex);
 
+    // Stat
     struct stat* sb = (struct stat*) malloc(sizeof(struct stat));
 
+    // Before editing any global, mutex is ensured and editing is done in critical region
     if(stat(name, sb) < 0){ // Bad File
         sem_wait(&mutex);
         badFiles++;
@@ -74,6 +76,8 @@ void* parser(void* arg){ // Adder thread
         regularFiles++;
         regularFileBytes += sb -> st_size;
         sem_post(&mutex);
+
+        // Need to open file to check is Text
         int fdIn;
         if ((fdIn = open(name, O_RDONLY)) < 0) {
             cerr << "bad file descriptor\n";
@@ -98,19 +102,20 @@ void* parser(void* arg){ // Adder thread
     sem_wait(&mutex);
     currentThreadCount--;
     sem_post(&mutex);
+
+    // Exit thread when done
     pthread_exit(0);
 }
 
 int main(int argc, char *argv[]) {
 
-    // Set target character
-
     if(argc == 3 && strcmp("thread", argv[1]) == 0){ // threads
-        if(atoi(&argv[2][0]) > 15 || atoi(&argv[2][0]) < 1){
+        if(atoi(&argv[2][0]) > 15 || atoi(&argv[2][0]) < 1){// Check thread count
             cout << "Invalid thread count";
             exit(0);
         }
 
+        // Init sems for mutex
         if (sem_init(&mutex, 0, 1) < 0) {
             perror("sem_init");
             exit(1);
@@ -120,47 +125,56 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
 
+        // Pointer in List of threads
         int nextSpace = 0;
         int currentPointer = 0;
 
         int maxThreads = atoi(&argv[2][0]);
+
+        // Create threads to process each file
         while(true){
+
+            // New buffer for name passing
             char* name = (char*)malloc(sizeof(char) * MAX_LENGTH);
+
+            // Get line
             cin.getline(name, MAX_LENGTH);
 
-            if(cin.fail()){
-                //cout << "here";
+            if(cin.fail()){ // EOF
                 break;
             }
 
+            // get value of current thread count
             sem_wait(&countMutex);
             int curCount = currentThreadCount;
-            //cout << "thread count " << currentThreadCount << "\n";
-            //cout.flush();
             sem_post(&countMutex);
 
-            if(curCount < maxThreads) {
+            if(curCount < maxThreads) { // Create a new thread
                 pthread_t newThread;
                 if (pthread_create(&newThread, NULL, parser, (void *) name) != 0) {
                     perror("pthread_create");
                 }
-                runningProcessesList[nextSpace] = newThread;
+                runningProcessesList[nextSpace] = newThread; // add this thread to the process lists next open space
                 nextSpace++;
-                //runningProcesses.push(newThread);
             } else {
-                pthread_join(runningProcesses.front(), NULL);
+                pthread_join(runningProcessesList[currentPointer], NULL); // Wait for thread to finish
+                currentPointer++; // Once thread finishes update pointer
+
+                // Then create a new thread for the file
                 pthread_t newThread;
                 if (pthread_create(&newThread, NULL, parser, (void *) name) != 0) {
                     perror("pthread_create");
                 }
                 //runningProcesses.push(newThread);
+
+                // Add this thread to the process lists next open space
                 runningProcessesList[nextSpace] = newThread;
                 nextSpace++;
             }
 
         }
 
-        while(!runningProcesses.empty()){// wait for all threads to finish
+        while(currentPointer < nextSpace - 1){// wait for all threads to finish
             pthread_join(runningProcessesList[currentPointer], NULL);
             currentPointer++;
             //runningProcesses.pop();
@@ -173,7 +187,7 @@ int main(int argc, char *argv[]) {
 
             char name[MAX_LENGTH];
             cin.getline(name, MAX_LENGTH);
-            if(cin.fail()){
+            if(cin.fail()){ // EOF
                 break;
             }
             if(stat(name, &sb) < 0){ // Bad File
@@ -190,7 +204,7 @@ int main(int argc, char *argv[]) {
                     cerr << "file open\n";
                     continue;
                 }
-                if(isTextFile(sb.st_size, fdIn)){
+                if(isTextFile(sb.st_size, fdIn)){ // Check Text File
                     textFileBytes += sb.st_size;
                     allText++;
                 }
@@ -203,6 +217,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    // Printout
     cout << "Bad Files: " << badFiles << "\n";
     cout << "Directories: " << directories << "\n";
     cout << "Regular Files: " << regularFiles << "\n";
@@ -213,6 +228,7 @@ int main(int argc, char *argv[]) {
     cout.flush();
 
     (void) sem_destroy(&mutex);
+    (void) sem_destroy(&countMutex);
 
 }
 
